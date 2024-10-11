@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 app.use(requestLogger);
 app.use(limiter);
 app.use(cors);
-app.use('/flylady/api', router);
+app.use('/api', router);
 
 app.use(errorLogger);
 app.use(errors());
