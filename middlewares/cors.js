@@ -1,8 +1,6 @@
 const allowedCors = [
-  'https://aelia.diploma.nomoredomainsmonster.ru',
-  'http://aelia.diploma.nomoredomainsmonster.ru',
-  'https://api.aelia.diploma.nomoredomainsmonster.ru',
-  'http://api.aelia.diploma.nomoredomainsmonster.ru',
+  'https://aelia.website',
+  'http://aelia.website',
   'http://localhost:3000',
 ];
 
