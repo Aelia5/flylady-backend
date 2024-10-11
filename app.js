@@ -19,7 +19,6 @@ mongoose.connect(
   NODE_ENV === 'production' ? DATABASE : 'mongodb://127.0.0.1:27017/flylady',
   { useNewUrlParser: true }
 );
-//mongoose.connect('mongodb://127.0.0.1:27017/flylady');
 
 app.use(helmet());
 app.use(bodyParser.json());
@@ -27,7 +26,7 @@ app.use(bodyParser.json());
 app.use(requestLogger);
 app.use(limiter);
 app.use(cors);
-app.use(router);
+app.use('/api', router);
 
 app.use(errorLogger);
 app.use(errors());
