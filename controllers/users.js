@@ -7,9 +7,7 @@ const NotFoundError = require('../errors/not-found-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
 const DefaultError = require('../errors/default-err');
 
-const {
-  validationErrorMessage,
-} = require('../utils/constants');
+const { validationErrorMessage } = require('../utils/constants');
 
 const notFoundMessage = 'Такой пользователь не существует';
 const unauthorizedMessage = 'Вы ввели неправильный логин или пароль';
@@ -18,51 +16,53 @@ const conflictMessage = 'Пользователь с такой почтой у�
 const { SUCCESS_CODE } = require('../utils/constants');
 
 module.exports.createUser = (req, res, next) => {
-  bcrypt.hash(req.body.password, 10)
-    .then((hash) => {
-      User.create({
-        name: req.body.name,
-        email: req.body.email,
-        password: hash,
-      })
-        .then((user) => res.status(SUCCESS_CODE).send({
+  bcrypt.hash(req.body.password, 10).then((hash) => {
+    User.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: hash,
+    })
+      .then((user) =>
+        res.status(SUCCESS_CODE).send({
           name: user.name,
           email: user.email,
           _id: user._id,
-        }))
-        .catch((err) => {
-          if (err.code === 11000) {
-            next(new ConflictError(conflictMessage));
-          } else if (err.name === 'ValidationError') {
-            next(new ValidationError(err.message));
-          } else {
-            next(new DefaultError('При регистрации пользователя произошла ошибка.'));
-          }
-        });
-    });
+        })
+      )
+      .catch((err) => {
+        if (err.code === 11000) {
+          next(new ConflictError(conflictMessage));
+        } else if (err.name === 'ValidationError') {
+          next(new ValidationError(err.message));
+        } else {
+          next(
+            new DefaultError('При регистрации пользователя произошла ошибка.')
+          );
+        }
+      });
+  });
 };
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email }).select('+password')
+  User.findOne({ email })
+    .select('+password')
     .then((user) => {
       if (!user) {
         throw new UnauthorizedError(unauthorizedMessage);
       }
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new UnauthorizedError(unauthorizedMessage);
-          }
-          return (user);
-        });
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          throw new UnauthorizedError(unauthorizedMessage);
+        }
+        return user;
+      });
     })
     .then((user) => {
       const { NODE_ENV, JWT_SECRET } = process.env;
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-                { expiresIn: '7d' },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'
       );
       res.send({ token });
     })
@@ -85,7 +85,7 @@ module.exports.updateUser = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user,
     { name: req.body.name, email: req.body.email },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .then((user) => {
       if (!user) {
